@@ -12,7 +12,7 @@
 # CI/CD utilities
 #################
 
-sphinx>=7.1.2,<8                # generate documentation
+sphinx>=7.2.6,<8                # generate documentation
 pip-check-updates>=0.23.0,<0.24 # compare installed versions to those in pypi
 mypy>=1.6.1,<1.7                # static type checking
 black>=23.10.1,<24              # code formatting
