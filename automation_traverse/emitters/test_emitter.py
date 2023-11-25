@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest.mock import patch, create_autospec, MagicMock
 
-from .common import Emitter
+from .emitter import Emitter
 
 
 class EmitterTestCase(unittest.TestCase):
