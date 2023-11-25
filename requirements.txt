@@ -2,11 +2,13 @@
 # Library
 #########
 
+colorama>=0.4.6,<0.5
 
 #########
 # Types
 #########
 
+types-colorama>=0.4.15.12,<0.5
 
 #################
 # CI/CD utilities
