@@ -1,7 +1,7 @@
 alabaster==0.7.13
 assertpy==1.1
 attrs==23.1.0
-automation-entities @ git+https://github.com/SudoVim/automation-entities@5413a55998329bcd48a0b9c30d1cc34b3d628370
+automation-entities @ git+https://github.com/SudoVim/automation-entities@b4d94c7ab17d792c31c9b0939166f53a577656bc
 Babel==2.13.1
 beautifulsoup4==4.12.2
 black==23.11.0

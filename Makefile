@@ -16,3 +16,8 @@ format-check:
 .PHONY: test
 test:
 	@py.test --cov=automation_traverse --cov-report=term-missing .
+
+.PHONY: update-dependencies
+update-dependencies:
+	pip3 uninstall automation-entities
+	pip3 install git+https://github.com/SudoVim/automation-entities
