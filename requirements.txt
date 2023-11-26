@@ -2,7 +2,9 @@
 # Library
 #########
 
-colorama>=0.4.6,<0.5
+colorama>=0.4.6,<0.5    # Terminal colors
+
+automation-entities @ git+https://github.com/SudoVim/automation-entities@672f68384bc5173779c6013f8ed2676c8f8912d8
 
 #########
 # Types
