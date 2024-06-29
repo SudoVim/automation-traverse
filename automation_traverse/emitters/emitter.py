@@ -1,6 +1,7 @@
+import collections
 import os
 from enum import Enum
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 
 class LogLevel(Enum):
@@ -43,11 +44,18 @@ class LogLevel(Enum):
     CATASTROPHIC = "catastrophic"
 
 
-class Emitter:
+T = TypeVar("T")
+
+
+class Emitter(Generic[T]):
     """
     An emitter is an abstraction that exists to determine how various debug
     information is to be passed on to the user. This is done through the
     various hooks that are required to be implememented.
+
+    .. attribute:: tasks
+
+        :var:`T`\\s run under this emitter
 
     .. attribute:: context_level
 
@@ -60,11 +68,26 @@ class Emitter:
     .. automethod:: finalize
     """
 
+    tasks: collections.OrderedDict[T, None]
+
     #: Context level starting from 0
     context_level: int
 
     def __init__(self):
         self.context_level = 0
+
+    def start_task(self, instance: T) -> None:
+        """
+        Hook that exists to inject some behavior in event of a new test
+        *instance* starting.
+        """
+        self.tasks[instance] = None
+
+    def end_task(self, instance: T) -> None:
+        """
+        Hook that exists to inject some behavior in event of a new test
+        *instance* ending.
+        """
 
     def subcontext(self) -> None:
         """

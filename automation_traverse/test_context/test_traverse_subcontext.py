@@ -14,7 +14,7 @@ class SubcontextTestCase(unittest.TestCase):
         self.context = create_autospec(TraverseContext)
         self.context.log_position = 0
         self.context.emitters = [self.emitter]
-        self.subcontext = TraverseSubcontext(self.context)
+        self.subcontext = TraverseSubcontext(self.context, self.context)
 
 
 class TestEnter(SubcontextTestCase):
