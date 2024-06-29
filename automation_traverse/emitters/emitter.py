@@ -1,7 +1,7 @@
 import collections
 import os
 from enum import Enum
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 
 class LogLevel(Enum):
