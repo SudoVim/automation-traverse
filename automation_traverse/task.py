@@ -3,17 +3,17 @@ module pertaining to individual tasks
 """
 
 import ast
-import pdb
-import datetime
-import traceback
 import collections
-from typing import Any, Callable, List, Mapping, Set, Union, Dict
+import datetime
+import pdb
+import traceback
+from typing import Any, Callable, Dict, List, Mapping, Set, Union
 
 from automation_entities.context import patch_dict
 
+from .asserter import DictAsserter
 from .context import TraverseContext
 from .emitters import Emitter, LogLevel
-from .asserter import DictAsserter
 
 RUN_SKIP = LogLevel.SKIP
 RUN_SUCCESS = LogLevel.SUCCESS

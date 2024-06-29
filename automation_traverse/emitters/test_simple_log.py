@@ -1,8 +1,10 @@
 import unittest
 from unittest.mock import MagicMock, call
-from .simple_log import SimpleLogEmitter
-from .emitter import LogLevel
+
 import colorama
+
+from .emitter import LogLevel
+from .simple_log import SimpleLogEmitter
 
 
 class MockEmitter(SimpleLogEmitter):

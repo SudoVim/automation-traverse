@@ -1,6 +1,6 @@
 import os
 import unittest
-from unittest.mock import patch, create_autospec, MagicMock
+from unittest.mock import MagicMock, create_autospec, patch
 
 from .emitter import Emitter
 

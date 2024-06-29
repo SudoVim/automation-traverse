@@ -1,6 +1,7 @@
-from typing_extensions import Self
-from automation_entities.context import Context, Subcontext
 from typing import List
+
+from automation_entities.context import Context, Subcontext
+
 from .emitters import Emitter, LogLevel
 
 
@@ -158,7 +159,7 @@ class TraverseFile(object):
     def __init__(self, fobjs: List) -> None:
         self.fobjs = fobjs
 
-    def __enter__(self) -> Self:
+    def __enter__(self) -> "TraverseFile":
         return self
 
     def __exit__(self, *args, **kwds) -> None:

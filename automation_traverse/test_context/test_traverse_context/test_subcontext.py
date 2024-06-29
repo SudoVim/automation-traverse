@@ -1,6 +1,7 @@
-from .common import ContextTestCase
-from ...emitters import Emitter, LogLevel
 from unittest.mock import create_autospec
+
+from ...emitters import Emitter, LogLevel
+from .common import ContextTestCase
 
 
 class TestSubcontext(ContextTestCase):

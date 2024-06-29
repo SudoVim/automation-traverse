@@ -1,7 +1,9 @@
-from .emitter import Emitter, LogLevel
 import collections
-import colorama
 from typing import Optional
+
+import colorama
+
+from .emitter import Emitter, LogLevel
 
 
 class SimpleLogEmitter(Emitter):
