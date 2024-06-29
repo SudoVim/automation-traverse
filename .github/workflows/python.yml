@@ -41,8 +41,3 @@ jobs:
 
     - name: Run tests
       run: pipenv run python -m pytest --cov=automation_traverse --cov-report=term-missing .
-
-    - name: Build docs
-      run: |
-        mkdir -p docs/build
-        pipenv run python -m sphinx.cmd.build . docs/build -c docs/
