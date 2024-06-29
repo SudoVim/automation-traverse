@@ -1,7 +1,8 @@
 import unittest
-from ..context import TraverseSubcontext, TraverseContext
-from ..emitters import Emitter
 from unittest.mock import MagicMock, create_autospec
+
+from ..context import TraverseContext, TraverseSubcontext
+from ..emitters import Emitter
 
 
 class SubcontextTestCase(unittest.TestCase):

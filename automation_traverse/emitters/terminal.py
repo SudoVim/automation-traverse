@@ -1,6 +1,7 @@
-from .simple_log import SimpleLogEmitter
-from typing import Optional, Any
 import sys
+from typing import Any, Optional
+
+from .simple_log import SimpleLogEmitter
 
 
 class TerminalEmitter(SimpleLogEmitter):

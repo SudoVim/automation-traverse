@@ -7,11 +7,13 @@ mypy:
 
 .PHONY: format
 format:
-	@git ls-files | grep "\.py$ " | xargs black
+	@pipenv run isort --profile black .
+	@pipenv run black .
 
 .PHONY: format-check
 format-check:
-	@git ls-files | grep "\.py$ " | xargs black --check
+	@pipenv run isort --profile black --check-only .
+	@pipenv run black --check .
 
 .PHONY: test
 test:

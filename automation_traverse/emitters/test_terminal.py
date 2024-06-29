@@ -1,7 +1,8 @@
-import unittest
-from .terminal import TerminalEmitter
-from unittest.mock import MagicMock
 import sys
+import unittest
+from unittest.mock import MagicMock
+
+from .terminal import TerminalEmitter
 
 
 class TestInit(unittest.TestCase):

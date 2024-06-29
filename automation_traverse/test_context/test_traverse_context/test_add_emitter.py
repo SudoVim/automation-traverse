@@ -1,6 +1,7 @@
 from typing import Any
-from .common import ContextTestCase
+
 from ...emitters import Emitter
+from .common import ContextTestCase
 
 
 class TestAddEmitter(ContextTestCase):

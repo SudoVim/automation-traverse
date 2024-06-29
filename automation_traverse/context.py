@@ -1,6 +1,8 @@
-from typing_extensions import Self
-from automation_entities.context import Context, Subcontext
 from typing import List
+
+from automation_entities.context import Context, Subcontext
+from typing_extensions import Self
+
 from .emitters import Emitter, LogLevel
 
 
