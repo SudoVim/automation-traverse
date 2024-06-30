@@ -17,7 +17,7 @@ format-check:
 
 .PHONY: test
 test:
-	@py.test --cov=automation_traverse --cov-report=term-missing .
+	@pipenv run py.test --cov=automation_traverse --cov-report=term-missing .
 
 .PHONY: update-dependencies
 update-dependencies:
