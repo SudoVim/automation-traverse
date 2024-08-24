@@ -3,7 +3,11 @@ check: mypy format-check
 
 .PHONY: mypy
 mypy:
-	@mypy automation_traverse
+	@pipenv run mypy .
+
+.PHONY: pyright
+pyright:
+	@pipenv run basedpyright --warnings
 
 .PHONY: format
 format:

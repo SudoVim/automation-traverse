@@ -1,32 +1,42 @@
-from typing import List
+from typing import IO, Any, Generic, List, Optional, Type
 
 from automation_entities.context import Context, Subcontext
+from typing_extensions import override
 
-from .emitters import Emitter, LogLevel
+from .emitters import Emitter, LogLevel, T
 
 
-class TraverseContext(Context):
+class TraverseContext(Context, Generic[T]):
     """
     :class:`automation_entities.context.Context` that supports multiple
     :class:`Emitter` s.
     """
 
-    emitters: List[Emitter]
+    emitters: List[Emitter[T]]
 
-    def __init__(self, *args, **kwds):
-        super().__init__(*args, **kwds)
+    def __init__(
+        self,
+        config_defaults: Optional[
+            dict
+        ] = None,  # pyright: ignore[reportMissingTypeArgument,reportUnknownParameterType]
+        subcontext_class: Optional[Type[Subcontext]] = None,
+    ):
+        super().__init__(
+            config_defaults, subcontext_class
+        )  # pyright: ignore[reportUnknownMemberType]
 
         self.emitters = []
 
-    def add_emitter(self, emitter: Emitter) -> None:
+    def add_emitter(self, emitter: Emitter[T]) -> None:
         """
         Add the given *emitter* to the :attr:`emitters` list.
         """
         self.emitters.append(emitter)
 
+    @override
     def subcontext(
         self, message: str, log_level: LogLevel = LogLevel.INFO
-    ) -> "TraverseSubcontext":
+    ) -> "TraverseSubcontext[T]":
         """
         subcontext implementation that creates a :class:`TraverseSubcontext`
         subcontext rather than the original.
@@ -43,6 +53,7 @@ class TraverseContext(Context):
         for emitter in self.emitters:
             emitter.pop_subcontext(context_level)
 
+    @override
     def log(self, message: str) -> None:
         """
         Log the given *message* as info.
@@ -118,34 +129,36 @@ class TraverseContext(Context):
         self.log_message(LogLevel.CATASTROPHIC, message)
 
 
-class TraverseSubcontext(Subcontext):
+class TraverseSubcontext(Subcontext, Generic[T]):
     """
     :class:`automation_entities.context.Subcontext` that supports multiple
     :class:`automation_traverse.emitters.Emitter` s.
     """
 
-    tranverse_context: "TraverseContext"
+    tranverse_context: "TraverseContext[T]"
 
-    def __init__(self, context: "Context", tranverse_context: "TraverseContext"):
+    def __init__(self, context: "Context", tranverse_context: "TraverseContext[T]"):
         super().__init__(context)
 
         self.tranverse_context = tranverse_context
 
-    def __enter__(self):
-        super().__enter__()
+    @override
+    def __enter__(self) -> "TraverseSubcontext[T]":
+        _ = super().__enter__()
 
         for emitter in self.tranverse_context.emitters:
             emitter.subcontext()
 
         return self
 
-    def __exit__(self, *args, **kwds):
-        super().__exit__(*args, **kwds)
+    @override
+    def __exit__(self, *args: Any, **kwds: Any) -> None:
+        super().__exit__(*args, **kwds)  # pyright: ignore[reportUnknownMemberType]
 
         self.tranverse_context.pop_subcontext(self.tranverse_context.log_position)
 
 
-class TraverseFile(object):
+class TraverseFile:
     """
     File-like object that multiplexes multiple file-like objects into one
     object.
@@ -154,23 +167,25 @@ class TraverseFile(object):
     """
 
     #: file objects wrapped by this class
-    fobjs: List
+    fobjs: List[IO[str]]
 
-    def __init__(self, fobjs: List) -> None:
+    def __init__(self, fobjs: List[IO[str]]) -> None:
         self.fobjs = fobjs
 
     def __enter__(self) -> "TraverseFile":
         return self
 
-    def __exit__(self, *args, **kwds) -> None:
+    def __exit__(self, *args: Any, **kwds: Any) -> None:
         self.close()
 
-    def write(self, data: str) -> None:
+    def write(self, data: str) -> int:
         """
         Write *data* to all :attr:`fobjs`
         """
-        for fobj in self.fobjs:
-            fobj.write(data)
+        if not self.fobjs:
+            return len(data)
+
+        return min(fobj.write(data) for fobj in self.fobjs)
 
     def close(self) -> None:
         """

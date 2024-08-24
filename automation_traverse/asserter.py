@@ -20,7 +20,7 @@ class DictAsserter(Entity):
 
     val: Dict[Any, Any]
 
-    def __init__(self, context: Context, val: dict) -> None:
+    def __init__(self, context: Context, val: Dict[Any, Any]) -> None:
         self.val = val
         super().__init__(context, pprint.pformat(val))
 
@@ -29,17 +29,19 @@ class DictAsserter(Entity):
         get and return the value corresponding to the given *key*
         """
         with self.interaction():
-            self.request(f"get_value {key}")
+            _ = self.request(f"get_value {key}")
 
-            assert_that(self.val).contains(key)
+            _ = assert_that(self.val).contains(key)
 
             with self.result() as result:
                 val = self.val[key]
                 result.log(f"Val: {pprint.pformat(val)}")
 
                 if isinstance(val, dict):
-                    val = self.__class__(self.context, val)
+                    val = self.__class__(
+                        self.context, val
+                    )  # pyright: ignore[reportUnknownArgumentType]
                 return val
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Any) -> Any:
         return self.get_value(key)

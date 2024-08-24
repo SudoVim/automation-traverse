@@ -7,13 +7,34 @@ import collections
 import datetime
 import pdb
 import traceback
-from typing import Any, Callable, Dict, List, Mapping, Set, Union
+from typing import (
+    Any,
+    Callable,
+    Deque,
+    Dict,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    Union,
+)
 
-from automation_entities.context import patch_dict
+from automation_entities.context import (  # pyright: ignore[reportUnknownVariableType]
+    Config,
+    patch_dict,
+)
+from typing_extensions import override
 
 from .asserter import DictAsserter
 from .context import TraverseContext
 from .emitters import Emitter, LogLevel
+
+TaskArgValue = Union[None, str, int, float, bool]
+TaskAttributes = Mapping[str, TaskArgValue]
+TaskTeardown = Callable[[], None]
 
 RUN_SKIP = LogLevel.SKIP
 RUN_SUCCESS = LogLevel.SUCCESS
@@ -21,23 +42,38 @@ RUN_FAIL = LogLevel.FAIL
 RUN_ERROR = LogLevel.ERROR
 RUN_CATASTROPHIC = LogLevel.CATASTROPHIC
 
+TaskStatus = Literal[
+    RUN_SKIP,
+    RUN_SUCCESS,
+    RUN_FAIL,
+    RUN_ERROR,
+    RUN_CATASTROPHIC,
+]
+
 
 class gather_debug:
     """
     descriptor/decorator used to denote a method that is necessary to run
     before teardown in the event the run fails
+
+    .. autoattribute:: fcn
     """
 
-    def __init__(self, fcn):
+    #: the function tasked with gathering debug data
+    fcn: Callable[..., Any]
+
+    def __init__(self, fcn: Callable[..., Any]) -> None:
         self.fcn = fcn
 
-    def __get__(self, obj, type_=None):
+    def __get__(
+        self, obj: Optional["Task"] = None, type_: Optional[Type["Task"]] = None
+    ) -> Any:
         if obj is None:
             return self
 
         return self.fcn.__get__(obj, type_)
 
-    def __call__(self, obj, *args, **kwds):
+    def __call__(self, obj: "Task", *args: Any, **kwds: Any) -> Any:
         return self.fcn.__get__(obj, type(obj))(*args, **kwds)
 
 
@@ -53,20 +89,19 @@ class TaskMeta(type):
     information from their superclasses
     """
 
-    def __new__(cls, name, bases, attrs):
-        debug_fcns = set()
-        parents = []
+    def __new__(cls, name: str, bases: Tuple[Type["Task"], ...], attrs: Dict[str, Any]):
+        debug_fcns: Set[gather_debug] = set()
+        parents: List[Type["Task"]] = []
         arguments = {}
         config_defaults = {}
-        presented_attrs = set()
+        presented_attrs: Set[str] = set()
         if name != "Task":
             for base in bases:
-                if not issubclass(base, Task):
-                    continue
-
                 parents.append(base)
                 patch_dict(arguments, base.ARGUMENTS)
-                patch_dict(config_defaults, base.CONFIG_DEFAULTS)
+                patch_dict(
+                    config_defaults, base.CONFIG_DEFAULTS
+                )  # pyright: ignore[reportArgumentType]
                 presented_attrs |= set(base.PRESENTED_ATTRS)
                 debug_fcns |= set(base.DEBUG_FCNS)
 
@@ -93,7 +128,7 @@ class TaskMeta(type):
         return type.__new__(cls, name, bases, attrs)
 
 
-class Task(object, metaclass=TaskMeta):
+class Task(metaclass=TaskMeta):
     """
     Task is the base class of all tasks cases using the traverse task engine.
     When defining a Task, you can optionally define any of the following:
@@ -121,13 +156,11 @@ class Task(object, metaclass=TaskMeta):
     its child nodes. In this way, we can retain the work done by the parent
     node during its setup.
 
-    .. attribute:: args
-
-        ``dict`` arguments for task
-
-    .. attribute:: teardown_stack
-
-        :class:`collections.deque` stack representing all teardowns
+    .. autoattribute:: args
+    .. autoattribute:: teardown_stack
+    .. autoattribute:: status
+    .. autoattribute:: context
+    .. autoattribute:: config
 
     .. automethod:: get_config
     .. automethod:: set_config_filepath
@@ -161,19 +194,30 @@ class Task(object, metaclass=TaskMeta):
     # user.
     SETUP_DEFINED = False
     RUN_DEFINED = False
-    PARENTS: List[type] = []
+    PARENTS: List[Type["Task"]] = []
     DEBUG_FCNS: Set[gather_debug] = set()
 
-    def __init__(self, *args, **kwds):
-        self.args = None
-        if args:
-            self.args = args[0]
+    #: arguments for task
+    args: TaskAttributes
 
-        else:
-            self.args = kwds
+    #: stack representing all teardowns
+    teardown_stack: Deque[Callable[[], None]]
 
+    #: status of this task if it has one
+    status: Optional[TaskStatus]
+
+    #: context used by this task
+    context: TraverseContext["Task"]
+
+    #: configuration used by this task
+    config: Optional[Config]
+
+    def __init__(self, args: Optional[TaskAttributes] = None) -> None:
+        self.args = args or {}
         self.teardown_stack = collections.deque()
-        self.context = TraverseContext(config_defaults=self.CONFIG_DEFAULTS)
+        self.context = TraverseContext["Task"](
+            config_defaults=self.CONFIG_DEFAULTS
+        )  # pyright: ignore[reportArgumentType]
         self.start_time = None
         self.time_taken = datetime.timedelta()
         self.error = None
@@ -181,15 +225,18 @@ class Task(object, metaclass=TaskMeta):
         self.status = None
         self.config = None
 
-    def get_config(self, key: str, skip_empty: bool = True) -> Any:
+    def get_config(self, key: str, skip_empty: bool = True) -> Optional[Any]:
         """
         get the given configuration *key*, which is a dot-separated list
         of the path to the desired configuration field (eg. val1.val2.val3)
         """
         toks = key.split(".")
-        parent = self.config
+        if not self.config:
+            return None
+
+        parent: Union[Config, Any] = self.config
         for tok in toks:
-            if tok not in parent:
+            if not isinstance(parent, Mapping) or tok not in parent:
                 if skip_empty:
                     raise TaskSkip(f"config value {key} not found")
 
@@ -211,7 +258,7 @@ class Task(object, metaclass=TaskMeta):
         self.context.set_config_file(filepath)
         self.config = self.context.config
 
-    def assert_dict(self, val: dict) -> DictAsserter:
+    def assert_dict(self, val: Dict[Any, Any]) -> DictAsserter:
         """
         wrap the given *val* with a :class:`DictAsserter`
         """
@@ -236,7 +283,7 @@ class Task(object, metaclass=TaskMeta):
         while self.teardown_stack:
             self.teardown_stack.pop()()
 
-    def add_teardown(self, fcn) -> None:
+    def add_teardown(self, fcn: TaskTeardown) -> TaskTeardown:
         """
         add a teardown to run; to add arguments to the callback, use
         :class:`functools.partial`
@@ -244,7 +291,7 @@ class Task(object, metaclass=TaskMeta):
         self.teardown_stack.append(fcn)
         return fcn
 
-    def teardown_to_function(self, fcn: Callable) -> None:
+    def teardown_to_function(self, fcn: TaskTeardown) -> None:
         """
         teardown to the given function
         """
@@ -257,13 +304,13 @@ class Task(object, metaclass=TaskMeta):
 
         raise AssertionError(f"function {fcn} not found")
 
-    def add_emitter(self, emitter: Emitter) -> None:
+    def add_emitter(self, emitter: Emitter["Task"]) -> None:
         """
         add a new *emitter* to the context
         """
         self.context.add_emitter(emitter)
 
-    def patch_attrs(self, new_attrs) -> None:
+    def patch_attrs(self, new_attrs: TaskAttributes) -> None:
         """
         patch instance's attrs with *new_attrs*
         """
@@ -331,7 +378,7 @@ class Task(object, metaclass=TaskMeta):
 
         self.time_taken += datetime.datetime.now() - self.start_time
 
-    def execute_teardown(self, debug=False):
+    def execute_teardown(self, debug: bool = False) -> None:
         """
         execute the tests's teardown only
         """
@@ -358,7 +405,7 @@ class Task(object, metaclass=TaskMeta):
         self.context.log_procedure(f"finished {self} - {self.status}")
         self.time_taken += datetime.datetime.now() - start_time
 
-    def execute(self, debug=False):
+    def execute(self, debug: bool = False) -> Optional[TaskStatus]:
         """
         Execute the test. If *debug* is set, drop into pdb post-mortem shell
         on failure.
@@ -373,24 +420,26 @@ class Task(object, metaclass=TaskMeta):
         """
         return self.__class__(self.args)
 
-    def __str__(self):
+    @override
+    def __str__(self) -> str:
         arg_str = ",".join(f"{k}={repr(v)}" for k, v in self.args.items())
         return f"{self.__class__.__name__}({arg_str})"
 
-    def __repr__(self):
+    @override
+    def __repr__(self) -> str:
         return self.__str__()
 
 
-def args_from_str(string):
+def args_from_str(string: str) -> TaskAttributes:
     """
     Generate a ``dict`` of arguments from the given string.
     """
-    args = {}
+    args: TaskAttributes = {}
     if string:
         for pair in string.split(","):
             toks = pair.split("=", 1)
             if len(toks) != 2:
-                return None
+                raise ValueError(f"arg value {pair} invalid")
 
             args[toks[0]] = ast.literal_eval(toks[1])
 
