@@ -11,5 +11,6 @@
   ],
   "pythonVersion": "3.8",
   "reportAny": false,
-  "reportIncompatibleVariableOverride": false // flags too many class Meta overrides otherwise
+  "reportIncompatibleVariableOverride": false, // flags too many class Meta overrides otherwise
+  "reportUnnecessaryTypeIgnoreComment": false // Previous Python versions don't think some directives are necessary
 }
