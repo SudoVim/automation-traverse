@@ -16,14 +16,14 @@ class TraverseContext(Context, Generic[T]):
 
     def __init__(
         self,
-        config_defaults: Optional[
-            dict
-        ] = None,  # pyright: ignore[reportMissingTypeArgument,reportUnknownParameterType]
+        config_defaults: Optional[  # pyright: ignore[reportUnknownParameterType]
+            dict  # pyright: ignore[reportMissingTypeArgument]
+        ] = None,
         subcontext_class: Optional[Type[Subcontext]] = None,
     ):
-        super().__init__(
+        super().__init__(  # pyright: ignore[reportUnknownMemberType]
             config_defaults, subcontext_class
-        )  # pyright: ignore[reportUnknownMemberType]
+        )
 
         self.emitters = []
 

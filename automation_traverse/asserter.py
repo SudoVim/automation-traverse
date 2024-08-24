@@ -39,8 +39,8 @@ class DictAsserter(Entity):
 
                 if isinstance(val, dict):
                     val = self.__class__(
-                        self.context, val
-                    )  # pyright: ignore[reportUnknownArgumentType]
+                        self.context, val  # pyright: ignore[reportUnknownArgumentType]
+                    )
                 return val
 
     def __getitem__(self, key: Any) -> Any:

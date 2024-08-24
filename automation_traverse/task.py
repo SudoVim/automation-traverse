@@ -22,10 +22,10 @@ from typing import (
     Union,
 )
 
-from automation_entities.context import (  # pyright: ignore[reportUnknownVariableType]
-    Config,
-    patch_dict,
+from automation_entities.context import (
+    patch_dict,  # pyright: ignore[reportUnknownVariableType]
 )
+from automation_entities.context import Config
 from typing_extensions import override
 
 from .asserter import DictAsserter
@@ -100,8 +100,9 @@ class TaskMeta(type):
                 parents.append(base)
                 patch_dict(arguments, base.ARGUMENTS)
                 patch_dict(
-                    config_defaults, base.CONFIG_DEFAULTS
-                )  # pyright: ignore[reportArgumentType]
+                    config_defaults,
+                    base.CONFIG_DEFAULTS,  # pyright: ignore[reportArgumentType]
+                )
                 presented_attrs |= set(base.PRESENTED_ATTRS)
                 debug_fcns |= set(base.DEBUG_FCNS)
 
@@ -216,8 +217,8 @@ class Task(metaclass=TaskMeta):
         self.args = args or {}
         self.teardown_stack = collections.deque()
         self.context = TraverseContext["Task"](
-            config_defaults=self.CONFIG_DEFAULTS
-        )  # pyright: ignore[reportArgumentType]
+            config_defaults=self.CONFIG_DEFAULTS  # pyright: ignore[reportArgumentType]
+        )
         self.start_time = None
         self.time_taken = datetime.timedelta()
         self.error = None
