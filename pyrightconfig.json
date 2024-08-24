@@ -1,0 +1,15 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "exclude": [
+      "**/node_modules",
+      "**/__pycache__",
+      "**/.*",
+      "**/tests/**",
+      "**/test_*/**",
+      "**/test_*.py"
+  ],
+  "pythonVersion": "3.8",
+  "reportAny": false,
+  "reportIncompatibleVariableOverride": false // flags too many class Meta overrides otherwise
+}

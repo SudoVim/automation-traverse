@@ -2,11 +2,12 @@ import collections
 from typing import Optional
 
 import colorama
+from typing_extensions import override
 
-from .emitter import Emitter, LogLevel
+from .emitter import Emitter, LogLevel, T
 
 
-class SimpleLogEmitter(Emitter):
+class SimpleLogEmitter(Emitter[T]):
     """
     The SimpleLogEmitter is an abstract :class:`Emitter` implementation that
     allows for subclasses to simply implement a single :meth:`emit` method
@@ -28,7 +29,7 @@ class SimpleLogEmitter(Emitter):
     DEFAULT_CONTEXT_LEVEL_SPACES = 4
 
     LOG_LEVEL_COLORS = collections.defaultdict(
-        lambda *args: colorama.Style.RESET_ALL,
+        lambda: colorama.Style.RESET_ALL,
         {
             LogLevel.DEBUG: colorama.Fore.WHITE + colorama.Style.DIM,
             LogLevel.PROCEDURE: colorama.Fore.BLUE,
@@ -53,6 +54,7 @@ class SimpleLogEmitter(Emitter):
             context_level_spaces or self.DEFAULT_CONTEXT_LEVEL_SPACES
         )
 
+    @override
     def log_message(self, log_level: LogLevel, message: str, end: str = "\n") -> None:
         """
         Specific information of :meth:`Emitter.log_message` that calls

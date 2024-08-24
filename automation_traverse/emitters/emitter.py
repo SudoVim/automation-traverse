@@ -1,7 +1,7 @@
 import collections
 import os
 from enum import Enum
-from typing import Any, Generic, TypeVar
+from typing import IO, Generic, TypeVar
 
 
 class LogLevel(Enum):
@@ -68,13 +68,14 @@ class Emitter(Generic[T]):
     .. automethod:: finalize
     """
 
-    tasks: collections.OrderedDict[T, None]
+    tasks: "collections.OrderedDict[T, None]"
 
     #: Context level starting from 0
     context_level: int
 
     def __init__(self):
         self.context_level = 0
+        self.tasks = collections.OrderedDict()
 
     def start_task(self, instance: T) -> None:
         """
@@ -117,7 +118,7 @@ class Emitter(Generic[T]):
         emitter.
         """
 
-    def log_file(self, description: str, extension: str, mode: str = "w") -> Any:
+    def log_file(self, description: str, extension: str, mode: str = "w") -> IO[str]:
         """
         Create a file object with the given *description* and file *extension*.
         This object will be used by the caller. It's up to the caller to close

@@ -37,7 +37,7 @@ jobs:
         pipenv run isort --profile black --check-only .
 
     - name: Check typing
-      run: pipenv run python -m mypy automation_traverse
+      run: make pyright
 
     - name: Run tests
       run: pipenv run python -m pytest --cov=automation_traverse --cov-report=term-missing .
