@@ -32,12 +32,10 @@ jobs:
         pipenv install --dev
 
     - name: Check formatting
-      run: |
-        pipenv run black --check .
-        pipenv run isort --profile black --check-only .
+      run: make format-check-black
 
     - name: Check typing
       run: make pyright
 
     - name: Run tests
-      run: pipenv run python -m pytest --cov=automation_traverse --cov-report=term-missing .
+      run: make test

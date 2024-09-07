@@ -71,7 +71,7 @@ class SimpleLogEmitter(Emitter[T]):
             line = line.rstrip()
             self.emit(f"{spaces}{color_pre_tag}{line}{color_post_tag}{end}")
 
-    def emit(self, message: str) -> None:
+    def emit(self, message: str) -> None:  # pyright: ignore[reportUnusedParameter]
         """
         Emit the given *message*. This should be implemented by sub-class
         implementations.

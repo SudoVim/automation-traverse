@@ -1,9 +1,5 @@
 .PHONY: check
-check: mypy format-check
-
-.PHONY: mypy
-mypy:
-	@pipenv run mypy .
+check: pyright format-check test
 
 .PHONY: pyright
 pyright:
@@ -16,7 +12,15 @@ format:
 
 .PHONY: format-check
 format-check:
+	@$(MAKE) format-check-isort
+	@$(MAKE) format-check-black
+
+.PHONY: format-check-isort
+format-check-isort:
 	@pipenv run isort --profile black --check-only .
+
+.PHONY: format-check-black
+format-check-black:
 	@pipenv run black --check .
 
 .PHONY: test
