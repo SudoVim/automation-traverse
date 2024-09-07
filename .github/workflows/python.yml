@@ -32,7 +32,7 @@ jobs:
         pipenv install --dev
 
     - name: Check formatting
-      run: make format-check
+      run: make format-check-black
 
     - name: Check typing
       run: make pyright
