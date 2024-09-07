@@ -1,10 +1,12 @@
 """
 module pertaining to asserting
 """
+
 import pprint
 from typing import Any, Dict
 
 from assertpy import assert_that
+
 from automation_entities.context import Context
 from automation_entities.entities import Entity
 

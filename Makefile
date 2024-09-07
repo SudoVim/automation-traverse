@@ -1,9 +1,5 @@
 .PHONY: check
-check: mypy format-check
-
-.PHONY: mypy
-mypy:
-	@pipenv run mypy .
+check: pyright format-check test
 
 .PHONY: pyright
 pyright:

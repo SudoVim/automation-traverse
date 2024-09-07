@@ -1,7 +1,8 @@
 from typing import IO, Any, Generic, List, Optional, Type
 
-from automation_entities.context import Context, Subcontext
 from typing_extensions import override
+
+from automation_entities.context import Context, Subcontext
 
 from .emitters import Emitter, LogLevel, T
 

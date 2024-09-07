@@ -84,7 +84,7 @@ class Emitter(Generic[T]):
         """
         self.tasks[instance] = None
 
-    def end_task(self, instance: T) -> None:
+    def end_task(self, instance: T) -> None:  # pyright: ignore[reportUnusedParameter]
         """
         Hook that exists to inject some behavior in event of a new test
         *instance* ending.
@@ -111,14 +111,24 @@ class Emitter(Generic[T]):
         """
         self.context_level = context_level
 
-    def log_message(self, log_level: LogLevel, message: str, end: str = "\n") -> None:
+    def log_message(
+        self,
+        log_level: LogLevel,  # pyright: ignore[reportUnusedParameter]
+        message: str,  # pyright: ignore[reportUnusedParameter]
+        end: str = "\n",  # pyright: ignore[reportUnusedParameter]
+    ) -> None:
         """
         Log the given *message* at the given *log_level*. If a multi-line
         message is given, it's expected to be handled appropriately by the
         emitter.
         """
 
-    def log_file(self, description: str, extension: str, mode: str = "w") -> IO[str]:
+    def log_file(
+        self,
+        description: str,  # pyright: ignore[reportUnusedParameter]
+        extension: str,  # pyright: ignore[reportUnusedParameter]
+        mode: str = "w",
+    ) -> IO[str]:
         """
         Create a file object with the given *description* and file *extension*.
         This object will be used by the caller. It's up to the caller to close
