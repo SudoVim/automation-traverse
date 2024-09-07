@@ -143,7 +143,7 @@ class RunnerGraph:
             failure_iters: int = opts.rerun_failures or 0
             while True:
                 try:
-                    _ = self.root.execute()
+                    _ = self.root.execute(opts=opts)
                     self.root.teardown_all()
 
                 except FinishRun:
@@ -174,6 +174,9 @@ class RunnerGraph:
 
                         failure_iters -= 1
                         continue
+
+                if success:
+                    break
 
             self.finalize()
 
@@ -475,6 +478,7 @@ class RunnerNode:
                 outstanding_nodes = child.execute(
                     outstanding_nodes=outstanding_nodes,
                     path=path,
+                    opts=opts,
                 )
                 if not child.check_complete():
                     leftover_children.add(child)

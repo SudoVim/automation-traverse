@@ -403,7 +403,7 @@ class Task(metaclass=TaskMeta):
         if self.status is None:
             self.status = RUN_SUCCESS
 
-        self.context.log_procedure(f"finished {self} - {self.status}")
+        self.context.log_procedure(f"finished {self} - {self.status.value}")
         self.time_taken += datetime.datetime.now() - start_time
 
     def execute(self, debug: bool = False) -> Optional[TaskStatus]:
