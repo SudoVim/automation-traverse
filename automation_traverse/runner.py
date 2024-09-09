@@ -175,7 +175,7 @@ class RunnerGraph:
                         failure_iters -= 1
                         continue
 
-                if success:
+                if self.root.complete:
                     break
 
             self.finalize()
