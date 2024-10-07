@@ -1,7 +1,7 @@
 import collections
 import os
 from enum import Enum
-from typing import IO, Generic, TypeVar
+from typing import IO, Any, Dict, Generic, TypeVar
 
 
 class LogLevel(Enum):
@@ -135,6 +135,15 @@ class Emitter(Generic[T]):
         it when done.
         """
         return open(os.devnull, mode)
+
+    def log_response(
+        self,
+        task: T,  # pyright: ignore[reportUnusedParameter]
+        response: Dict[str, Any],  # pyright: ignore[reportUnusedParameter]
+    ) -> None:
+        """
+        Log the given *response* for a task.
+        """
 
     def finalize(self):
         """

@@ -6,11 +6,11 @@ import collections
 import random
 from typing import Any, Deque, Dict, Iterator, List, Mapping, Optional, Set, Type
 
-from typing_extensions import override
-
 from automation_entities.context import (
     patch_dict,  # pyright: ignore[reportUnknownVariableType]
 )
+from typing_extensions import override
+
 from automation_traverse.emitters.emitter import Emitter
 
 from .task import RUN_CATASTROPHIC, RUN_SKIP, RUN_SUCCESS, Task, TaskArgValue

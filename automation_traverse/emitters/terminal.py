@@ -1,10 +1,11 @@
 import io
+import pprint
 import sys
-from typing import Optional, TextIO, Union
+from typing import Any, Dict, Optional, TextIO, Union
 
 from typing_extensions import override
 
-from .emitter import T
+from .emitter import LogLevel, T
 from .simple_log import SimpleLogEmitter
 
 
@@ -49,3 +50,18 @@ class TerminalEmitter(SimpleLogEmitter[T]):
         _ = self.fobj.write(message)
         if self.flush:
             self.fobj.flush()
+
+    @override
+    def log_response(self, task: T, response: Dict[str, Any]) -> None:
+        """
+        Log the given *response* for a task.
+        """
+        self.log_message(
+            LogLevel.PROCEDURE,
+            "\n".join(
+                [
+                    "Response for task:",
+                    pprint.pformat(response),
+                ]
+            ),
+        )
