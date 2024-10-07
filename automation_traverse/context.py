@@ -1,8 +1,7 @@
-from typing import IO, Any, Generic, List, Optional, Type
-
-from typing_extensions import override
+from typing import IO, Any, Dict, Generic, List, Optional, Type
 
 from automation_entities.context import Context, Subcontext
+from typing_extensions import override
 
 from .emitters import Emitter, LogLevel, T
 
@@ -128,6 +127,13 @@ class TraverseContext(Context, Generic[T]):
         log the given *message* at catastrophic level.
         """
         self.log_message(LogLevel.CATASTROPHIC, message)
+
+    def log_response(self, task: T, response: Dict[str, Any]) -> None:
+        """
+        log the given *response* for the given *task*
+        """
+        for emitter in self.emitters:
+            emitter.log_response(task, response)
 
 
 class TraverseSubcontext(Subcontext, Generic[T]):

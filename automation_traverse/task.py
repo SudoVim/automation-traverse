@@ -22,12 +22,11 @@ from typing import (
     Union,
 )
 
-from typing_extensions import override
-
 from automation_entities.context import (
     patch_dict,  # pyright: ignore[reportUnknownVariableType]
 )
 from automation_entities.context import Config
+from typing_extensions import override
 
 from .asserter import DictAsserter
 from .context import TraverseContext
@@ -415,6 +414,12 @@ class Task(metaclass=TaskMeta):
         self.execute_run(debug=debug)
         self.execute_teardown(debug=debug)
         return self.status
+
+    def log_response(self, response: Dict[str, Any]) -> None:
+        """
+        Log the response of this task to the given *response*.
+        """
+        self.context.log_response(self, response)
 
     def clone(self):
         """
