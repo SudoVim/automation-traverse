@@ -4,7 +4,7 @@ module for running tasks
 
 import collections
 import random
-from typing import Any, Deque, Dict, Iterator, List, Mapping, Optional, Set, Type
+from typing import Any, Callable, Deque, Dict, Iterator, List, Optional, Set
 
 from automation_entities.context import (
     patch_dict,  # pyright: ignore[reportUnknownVariableType]
@@ -13,7 +13,7 @@ from typing_extensions import override
 
 from automation_traverse.emitters.emitter import Emitter
 
-from .task import RUN_CATASTROPHIC, RUN_SKIP, RUN_SUCCESS, Task, TaskArgValue
+from .task import RUN_CATASTROPHIC, RUN_SKIP, RUN_SUCCESS, Task
 
 
 class RunOptions:
@@ -26,6 +26,7 @@ class RunOptions:
     .. autoattribute:: debug
     .. autoattribute:: failfast
     .. autoattribute:: rerun_failures
+    .. autoattribute:: between_tasks
     """
 
     #: whether to execute dependent tasks in a random order
@@ -46,6 +47,9 @@ class RunOptions:
     #: how many times to rerun tasks that failed
     rerun_failures: Optional[int]
 
+    #: function to call whenever a task completes execution
+    between_tasks: Optional[Callable[[], None]]
+
     def __init__(self) -> None:
         self.random_order = False
         self.config_filepath = None
@@ -53,6 +57,7 @@ class RunOptions:
         self.debug = False
         self.failfast = False
         self.rerun_failures = None
+        self.between_tasks = None
 
 
 class StopRun(Exception):
@@ -79,9 +84,6 @@ class RunnerGraph:
     .. automethod:: reset
     """
 
-    #: the universe of tasks that can be run
-    tasks: List[Task]
-
     #: the root task
     root: Optional["RunnerNode"]
 
@@ -89,37 +91,30 @@ class RunnerGraph:
     all_nodes: Dict[str, "RunnerNode"]
 
     def __init__(self, tasks: List[Task]) -> None:
-        self.tasks = tasks
-
         self.root = None
         self.all_nodes = {}
 
-        for task in self.tasks:
-            _ = self.add_task(task.__class__, task.args, task)
+        for task in tasks:
+            _ = self.add_task(task)
 
-    def add_task(
-        self,
-        cls: Type[Task],
-        args: Mapping[str, TaskArgValue],
-        task: Optional[Task] = None,
-    ) -> "RunnerNode":
+    def add_task(self, task: Task, allow_duplicate: bool = False) -> "RunnerNode":
         """
-        Add given *cls(args)* or *task* to the *graph*
+        Add given *task* to the *graph*
         """
-        key = RunnerNode.generate_key(cls, args)
+        key = RunnerNode.generate_key(task)
         if key in self.all_nodes:
             node = self.all_nodes[key]
 
             return self.all_nodes[key]
 
         parent_nodes: List["RunnerNode"] = []
-        task = task or cls(args)
         for parent in task.PARENTS:
             parent_args = {k: v for k, v in task.args.items() if k in parent.ARGUMENTS}
-            parent_nodes.append(self.add_task(parent, parent_args))
+            parent_nodes.append(self.add_task(parent(parent_args)))
 
         node = RunnerNode(task, parent_nodes)
-        self.all_nodes[key] = node
+        if not allow_duplicate:
+            self.all_nodes[key] = node
 
         if self.root is None:
             self.root = node
@@ -128,6 +123,35 @@ class RunnerGraph:
             parent_node.children.append(node)
 
         return node
+
+    def clean_graph(self) -> List["RunnerNode"]:
+        """
+        Clean the graph of tasks that have finished running.
+        """
+        if not self.root:
+            return []
+
+        remove_nodes: List[RunnerNode] = []
+        remove_set: Set[RunnerNode] = set()
+        for node in self.root:
+            if node.complete:
+                remove_nodes.append(node)
+                remove_set.add(node)
+
+        for node in reversed(remove_nodes):
+            key = RunnerNode.generate_key(node.task)
+            if key in self.all_nodes:
+                del self.all_nodes[key]
+
+            for parent in node.parents:
+                parent.children = collections.deque(
+                    [n for n in parent.children if n not in remove_set]
+                )
+
+        if self.root in remove_set:
+            self.root = None
+
+        return remove_nodes
 
     def reset(self) -> None:
         """
@@ -144,10 +168,10 @@ class RunnerGraph:
             while True:
                 try:
                     _ = self.root.execute(opts=opts)
-                    self.root.teardown_all()
+                    self.root.teardown_all(opts)
 
                 except FinishRun:
-                    self.root.teardown_all()
+                    self.root.teardown_all(opts)
                     success = False
                     break
 
@@ -225,13 +249,12 @@ class RunnerNode:
     #: whether this node and all of its children have been run and torn down
     complete: bool
 
-    @classmethod
-    def generate_key(cls, *args: Any) -> str:
+    @staticmethod
+    def generate_key(task: Task) -> str:
         """
         Generate key representing this node
         """
-        instance = cls(*args)
-        return f"{cls.__module__}.{instance}"
+        return f"{task.__class__.__module__}.{task}"
 
     def __init__(self, task: Task, parents: List["RunnerNode"]) -> None:
         self.task = task
@@ -310,18 +333,19 @@ class RunnerNode:
             for n in parent.reversed(visited=visited):
                 yield n
 
-    def teardown_all(self) -> None:
+    def teardown_all(self, opts: Optional["RunOptions"] = None) -> None:
         """
         Recursively tear down all nodes that have been run but haven't yet
         been torn down.
         """
+        opts = opts or RunOptions()
         if not self.run_complete:
             return
 
         for child in self.children:
-            child.teardown_all()
+            child.teardown_all(opts)
 
-        self.execute_teardown()
+        self.execute_teardown(opts)
 
     def find_outstanding_nodes(
         self,
@@ -373,7 +397,7 @@ class RunnerNode:
 
             # This node needs to be torn down as we aren't related to it.
             if teardown_node not in all_ancestors:
-                teardown_node.execute_teardown()
+                teardown_node.execute_teardown(opts)
                 teardown_nodes |= set(teardown_node.parents)
 
         return teardown_nodes
@@ -535,7 +559,7 @@ class RunnerNode:
             # We're now officially out of this node's runlevel, so mark it as
             # such.
             self.run_complete = False
-            self.finish_node()
+            self.finish_node(opts)
 
         except Exception:
             if self.task.__class__ != Task:
@@ -567,10 +591,25 @@ class RunnerNode:
             return outstanding_nodes
 
         path.add(self)
-        self.save_the_children(path=path, opts=opts)
+
+        opts = opts or RunOptions()
+        if opts.between_tasks:
+            opts.between_tasks()
+
+        # Keep running node's children until it stops getting more to run.
+        child_set = set(self.children)
+        while True:
+            self.save_the_children(path=path, opts=opts)
+            after_child_set = set(self.children)
+            if child_set == after_child_set:
+                break
+
+            self.children_complete = False
+            child_set = after_child_set
+
         path.remove(self)
 
-        self.execute_teardown()
+        self.execute_teardown(opts)
 
         return outstanding_nodes
 
@@ -603,33 +642,41 @@ class RunnerNode:
             and self.task.status is not None
             and self.task.status != RUN_SKIP
         ):
-            self.execute_teardown()
+            self.execute_teardown(opts)
             raise FinishRun
 
-        elif self.task.status is not None:
-            self.children_complete = True
-            for child in self:
-                if child == self:
-                    continue
+        if self.task.status is None:
+            return
 
-                child.children_complete = True
-                child.complete = True
+        # For bad statuses, propagate to all of our children as we can't run
+        # them anyway.
+        self.children_complete = True
+        for child in self:
+            if child == self:
+                continue
 
-                child.task.status = self.task.status
-                child.task.error = self.task.error
-                child.task.error_text = self.task.error_text
+            child.children_complete = True
+            child.complete = True
 
-    def finish_node(self) -> None:
+            child.task.status = self.task.status
+            child.task.error = self.task.error
+            child.task.error_text = self.task.error_text
+
+    def finish_node(self, opts: Optional["RunOptions"]) -> None:
         """
         Finish this node after a teardown.
         """
+        opts = opts or RunOptions()
         self.children_complete = all(c.check_complete() for c in self.children)
-        if self.children_complete:
-            # But it is visited, so mark complete.
-            self.complete = True
-
-        else:
+        if not self.children_complete:
             self.reset()
+            return
+
+        # If it's visited, mark it complete.
+        self.complete = True
+
+        if opts.between_tasks:
+            opts.between_tasks()
 
     @override
     def __str__(self) -> str:
