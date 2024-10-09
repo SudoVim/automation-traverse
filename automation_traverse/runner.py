@@ -168,15 +168,21 @@ class RunnerGraph:
             while True:
                 try:
                     _ = self.root.execute(opts=opts)
-                    self.root.teardown_all(opts)
+                    if self.root:
+                        self.root.teardown_all(opts)
 
                 except FinishRun:
-                    self.root.teardown_all(opts)
+                    if self.root:
+                        self.root.teardown_all(opts)
+
                     success = False
                     break
 
                 except StopRun:
                     success = False
+                    break
+
+                if not self.root:
                     break
 
                 for node in self.root:
