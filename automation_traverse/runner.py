@@ -553,11 +553,15 @@ class RunnerNode:
                 # Patch our attrs back so we get our context back.
                 self.task.patch_attrs(self.run_attrs)
                 self.task.execute_teardown(debug=opts.debug)
-                if self.task.status == RUN_CATASTROPHIC:
-                    raise StopRun
-
                 for emitter in opts.emitters or []:
                     emitter.end_task(self.task)
+
+                if self.task.status == RUN_CATASTROPHIC:
+                    self.run_complete = False
+                    for node in self.reversed():
+                        node.finish_node(opts)
+
+                    raise StopRun
 
             else:
                 self.task.status = RUN_SUCCESS
