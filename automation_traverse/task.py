@@ -25,7 +25,9 @@ from typing import (
 from automation_entities.context import (
     patch_dict,  # pyright: ignore[reportUnknownVariableType]
 )
-from automation_entities.context import Config
+from automation_entities.context import (
+    Config,
+)
 from typing_extensions import override
 
 from .asserter import DictAsserter
@@ -162,6 +164,10 @@ class Task(metaclass=TaskMeta):
     .. autoattribute:: status
     .. autoattribute:: context
     .. autoattribute:: config
+    .. autoattribute:: start_time
+    .. autoattribute:: time_taken
+    .. autoattribute:: error
+    .. autoattribute:: error_text
 
     .. automethod:: get_config
     .. automethod:: set_config_filepath
@@ -193,8 +199,8 @@ class Task(metaclass=TaskMeta):
 
     # These values are set by TaskMeta and should not be overwritten by the
     # user.
-    SETUP_DEFINED = False
-    RUN_DEFINED = False
+    SETUP_DEFINED: bool = False
+    RUN_DEFINED: bool = False
     PARENTS: List[Type["Task"]] = []
     DEBUG_FCNS: Set[gather_debug] = set()
 
@@ -212,6 +218,18 @@ class Task(metaclass=TaskMeta):
 
     #: configuration used by this task
     config: Optional[Config]
+
+    #: time the task started
+    start_time: Optional[datetime.datetime]
+
+    #: the amount of time the task took to run
+    time_taken: datetime.timedelta
+
+    #: the error raised (if any)
+    error: Optional[Exception]
+
+    #: the text of the raised error (if any)
+    error_text: Optional[str]
 
     def __init__(self, args: Optional[TaskAttributes] = None) -> None:
         self.args = args or {}

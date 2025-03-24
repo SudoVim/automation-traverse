@@ -10,5 +10,6 @@
   ],
   "pythonVersion": "3.8",
   "reportAny": false,
+  "reportExplicitAny": false,
   "reportIncompatibleVariableOverride": false // flags too many class Meta overrides otherwise
 }

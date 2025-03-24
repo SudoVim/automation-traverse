@@ -1,4 +1,5 @@
 import collections
+from collections.abc import Mapping
 from typing import Optional
 
 import colorama
@@ -26,9 +27,9 @@ class SimpleLogEmitter(Emitter[T]):
     use_color: bool
     context_level_spaces: int
 
-    DEFAULT_CONTEXT_LEVEL_SPACES = 4
+    DEFAULT_CONTEXT_LEVEL_SPACES: int = 4
 
-    LOG_LEVEL_COLORS = collections.defaultdict(
+    LOG_LEVEL_COLORS: Mapping[LogLevel, str] = collections.defaultdict(
         lambda: colorama.Style.RESET_ALL,
         {
             LogLevel.DEBUG: colorama.Fore.WHITE + colorama.Style.DIM,

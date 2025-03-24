@@ -5,7 +5,6 @@ module pertaining to asserting
 import pprint
 from typing import Any, Dict
 
-from assertpy import assert_that
 from automation_entities.context import Context
 from automation_entities.entities import Entity
 
@@ -32,7 +31,8 @@ class DictAsserter(Entity):
         with self.interaction():
             _ = self.request(f"get_value {key}")
 
-            _ = assert_that(self.val).contains(key)
+            if key not in self.val:
+                raise AssertionError(f"{self.val} does not contain key {key}")
 
             with self.result() as result:
                 val = self.val[key]
