@@ -25,7 +25,9 @@ from typing import (
 from automation_entities.context import (
     patch_dict,  # pyright: ignore[reportUnknownVariableType]
 )
-from automation_entities.context import Config
+from automation_entities.context import (
+    Config,
+)
 from typing_extensions import override
 
 from .asserter import DictAsserter
