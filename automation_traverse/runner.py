@@ -390,7 +390,7 @@ class RunnerNode:
 
         # Set of the "highest" nodes in the graph that can be considered
         # outstanding.
-        teardown_nodes: Set["RunnerNode"] = set() | set(outstanding_nodes)
+        teardown_nodes: Set["RunnerNode"] = {*outstanding_nodes}
         while teardown_nodes:
             teardown_node = None
             if opts.random_order:
