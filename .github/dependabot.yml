@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    groups:
+      actions:
+        patterns: ["*"]
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+      time: "08:00"
+      timezone: "America/Chicago"
+  - package-ecosystem: "uv"
+    directory: "/"
+    groups:
+      uv:
+        patterns: ["*"]
+      security:
+        applies-to: "security-updates"
+        patterns: ["*"]
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+      time: "08:00"
+      timezone: "America/Chicago"

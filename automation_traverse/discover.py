@@ -25,7 +25,9 @@ def import_module(pypath: str, filepath: str) -> ModuleType:
             raise ValueError(f"module {key} not found")
 
         new_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(new_module)
+        spec.loader.exec_module(  # pyright: ignore[reportUnknownMemberType,reportAttributeAccessIssue]
+            new_module
+        )
         imported_modules[key] = new_module
 
     return imported_modules[key]
