@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "491c97573bbae8c66f790a06c0aaa841af0c4bd8df2b7437828a3e0fdf8069a9"
+            "sha256": "a9fcb4a21daff129c0d6f037d7d7549220cf1efd612e04f81922f534e2725173"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -27,7 +27,7 @@
         "automation-entities": {
             "git": "git+https://github.com/SudoVim/automation-entities.git",
             "markers": "python_version >= '3.8' and python_version < '4'",
-            "ref": null
+            "ref": "8730909e21045cbdb483ad4e07a125816e8dda60"
         },
         "certifi": {
             "hashes": [
@@ -548,6 +548,15 @@
             "index": "pypi",
             "markers": "python_version >= '3.10'",
             "version": "==1.6.1"
+        },
+        "bump2version": {
+            "hashes": [
+                "sha256:37f927ea17cde7ae2d7baf832f8e80ce3777624554a653006c9144f8017fe410",
+                "sha256:762cb2bfad61f4ec8e2bdf452c7c267416f8c70dd9ecb1653fd0bbb01fa936e6"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.5'",
+            "version": "==1.0.1"
         },
         "certifi": {
             "hashes": [
@@ -1473,11 +1482,11 @@
         },
         "pluggy": {
             "hashes": [
-                "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3",
-                "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"
+                "sha256:7dd7b0d8832ba3cb632c306926ded123429211b83641b35dc5c41ad2d34f9bec",
+                "sha256:d1eaa46ebb595891b860ab086b4d09c8588af65ebd4361b8e8f4bb8920b90ba8"
             ],
-            "markers": "python_version >= '3.9'",
-            "version": "==1.6.0"
+            "markers": "python_version >= '3.10'",
+            "version": "==1.7.0"
         },
         "pycparser": {
             "hashes": [
