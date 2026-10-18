@@ -10,6 +10,9 @@ format:
 	@pipenv run isort --profile black .
 	@pipenv run black .
 
+.PHONY: ci
+ci: format pyright
+
 .PHONY: format-check
 format-check:
 	@$(MAKE) format-check-isort
