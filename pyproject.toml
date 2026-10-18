@@ -1,6 +1,6 @@
 [project]
 name = "automation-traverse"
-version = "0.1.2"
+version = "1.0.0"
 authors = [
   { name="Michael Renken", email="michaelarenken@gmail.com" },
 ]
