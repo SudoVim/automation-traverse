@@ -27,16 +27,16 @@ wheels = [
 
 [[package]]
 name = "automation-entities"
-version = "1.0.0"
+version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
     { name = "selenium" },
     { name = "undetected-chromedriver" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6d/54/b1a808bd231e758407573ffe7a349ed7034ae2f9c7dc9a7cb51dc0da32ca/automation_entities-1.0.0.tar.gz", hash = "sha256:9c27afccc4d433a081b884ea68fee13e5dcc9c51fb90c2ebf1d1217b9a429e7d", size = 13586, upload-time = "2026-10-18T16:41:22.822Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5e/ee/3b0cb5f8853b5d6592ca726b66ef3c0b0fa0ce9c2a903af22f22bebc9a0f/automation_entities-1.0.1.tar.gz", hash = "sha256:97b42823bcae02bb7fde846a26ba7dbe4137b825be6780e98220945ed6dde131", size = 13609, upload-time = "2026-11-08T17:20:32.885Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d6/33/2a07054ae391d8553a3615be12e062f7053a706aa5db866860b18d3b34f5/automation_entities-1.0.0-py3-none-any.whl", hash = "sha256:a12dfe7e3b49806a5f0829a1692a0534949e15a4b3ff06c636024b9ea68bbad2", size = 15246, upload-time = "2026-10-18T16:41:21.663Z" },
+    { url = "https://files.pythonhosted.org/packages/79/b3/a2b26fbf7040fb59f1b284cca5776bf41519d1f9a36dbcfec6e5c399fe27/automation_entities-1.0.1-py3-none-any.whl", hash = "sha256:7b65c6bcb40a2d09aa3196e5f18a29a19fb376b390c960cb6aa119554a7071ea", size = 15245, upload-time = "2026-11-08T17:20:31.846Z" },
 ]
 
 [[package]]
@@ -65,7 +65,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "automation-entities", specifier = ">=1.0.0" },
+    { name = "automation-entities", specifier = ">=1.0.1" },
     { name = "colorama", specifier = ">=0.4.6" },
     { name = "types-colorama", specifier = ">=0.4.15.20260508" },
 ]

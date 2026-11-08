@@ -16,7 +16,7 @@ classifiers = [
 license = "MIT"
 license-files = ["LICENSE"]
 dependencies = [
-    "automation-entities>=1.0.0",
+    "automation-entities>=1.0.1",
     "colorama>=0.4.6",
     "types-colorama>=0.4.15.20260508",
 ]
